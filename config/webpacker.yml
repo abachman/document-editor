@@ -36,6 +36,8 @@ default: &default
     - .jsx
     - .mjs
     - .js
+    - .ts
+    - .tsx
     - .sass
     - .scss
     - .css
@@ -50,7 +52,7 @@ default: &default
 
 development:
   <<: *default
-  compile: true
+  compile: false
 
   # Reference: https://webpack.js.org/configuration/dev-server/
   dev_server:
@@ -71,7 +73,6 @@ development:
       'Access-Control-Allow-Origin': '*'
     watch_options:
       ignored: '**/node_modules/**'
-
 
 test:
   <<: *default
