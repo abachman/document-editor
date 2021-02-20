@@ -1,14 +1,9 @@
-<p id="notice"><%= notice %></p>
+<div id="root"></div>
 
-<p>
-  <strong>Data:</strong>
-  <%= @document.data %>
-</p>
+<script>
+  window.WS_URL = 'ws://<%= request.host %>:5100/websocket'
+  window.DOCUMENT = <%== @document.to_json %>
+</script>
 
-<p>
-  <strong>Name:</strong>
-  <%= @document.name %>
-</p>
-
-<%= link_to 'Edit', edit_document_path(@document) %> |
-<%= link_to 'Back', documents_path %>
+<%= javascript_pack_tag 'document_editor' %>
+<%= stylesheet_pack_tag 'document_editor' %>

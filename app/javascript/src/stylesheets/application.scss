@@ -1,0 +1,27 @@
+.editor {
+  width: 32rem;
+
+  .form {
+    column-gap: 1rem;
+    display: grid;
+    grid-template-columns: 2rem auto 4rem;
+    margin: 0;
+    padding: 0.5rem;
+
+    button {
+      width: 100%;
+    }
+
+    &.note {
+      background: #fea;
+    }
+
+    &.question {
+      background: #ace;
+    }
+  }
+
+  .controls {
+    margin: 1rem 0;
+  }
+}

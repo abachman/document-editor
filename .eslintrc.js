@@ -23,7 +23,7 @@ module.exports = {
   rules: {
     // Place to specify ESLint rules. Can be used to overwrite rules specified from the extended configs
     // "@typescript-eslint/explicit-function-return-type": "off",
-    // '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
     'no-console': 2,
     'prettier/prettier': 2,
   },

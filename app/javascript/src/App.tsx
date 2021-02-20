@@ -2,10 +2,17 @@
 // Goal: multi-user collaborative document editing.
 //
 
-export const App: React.FunctionComponent<void> = () => {
+import { Router } from '@reach/router'
+import { DocumentEditor } from './components/DocumentEditor'
+import { Viewer } from './components/Viewer'
+
+import './stylesheets/application.scss'
+
+export const App = () => {
   return (
-    <div className="documents-app">
-      <h1>Documents</h1>
-    </div>
+    <Router>
+      <DocumentEditor path="/edit" default />
+      <Viewer path="/view" />
+    </Router>
   )
 }

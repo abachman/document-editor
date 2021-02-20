@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_12_203537) do
+ActiveRecord::Schema.define(version: 2021_02_15_172242) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,6 +20,18 @@ ActiveRecord::Schema.define(version: 2021_02_12_203537) do
     t.string "name"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "version", default: 0
   end
 
+  create_table "operations", force: :cascade do |t|
+    t.bigint "document_id", null: false
+    t.string "operation_type"
+    t.jsonb "payload"
+    t.integer "version"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["document_id"], name: "index_operations_on_document_id"
+  end
+
+  add_foreign_key "operations", "documents"
 end

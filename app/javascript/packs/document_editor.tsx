@@ -3,19 +3,18 @@
 // of the page.
 
 import ReactDOM from 'react-dom'
+import { Provider } from 'react-redux'
 
-interface HelloProps {
-  name: string
-}
+import { App } from '../src/App'
+import { store } from '../src/store'
 
-const Hello = (props: HelloProps) => <div>Hello {props.name}!</div>
-Hello.defaultProps = {
-  name: 'David',
-}
-
-document.addEventListener('DOMContentLoaded', () => {
+function start() {
   ReactDOM.render(
-    <Hello name="React" />,
+    <Provider store={store}>
+      <App />
+    </Provider>,
     document.body.appendChild(document.createElement('div'))
   )
-})
+}
+
+document.addEventListener('turbolinks:load', start)
