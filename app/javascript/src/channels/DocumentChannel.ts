@@ -41,7 +41,7 @@ type OperationAPI = {
   id: number
   document_id: number
   operation_type: Action['type']
-  payload: Operation
+  payload: Operation['payload']
   version: number
   created_at: string
   updated_at: string
@@ -64,7 +64,7 @@ type ErrorMessage = {
 }
 
 type Remoteish = {
-  _remote: boolean
+  _remote?: boolean
 }
 
 export type InsertOperation = {

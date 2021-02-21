@@ -1,10 +1,30 @@
 import * as cuid from 'cuid'
+import {
+  Action,
+  AnyAction,
+  PreloadedState,
+  Reducer,
+  Store,
+  StoreEnhancer,
+  StoreEnhancerStoreCreator,
+} from 'redux'
 import { DocumentChannel } from '../channels'
-import { Operation, VersionedOperation } from '../channels/DocumentChannel'
+import {
+  InsertOperation,
+  Operation,
+  RemoveOperation,
+  VersionedOperation,
+} from '../channels/DocumentChannel'
 import { transform } from './transform'
 
 type Timers = {
   operation?: ReturnType<typeof window.setTimeout> | null
+}
+
+type OperationAction = Action<
+  InsertOperation['type'] | RemoveOperation['type']
+> & {
+  payload: InsertOperation['payload'] | RemoveOperation['payload']
 }
 
 export class CollaborationClient {
@@ -14,14 +34,61 @@ export class CollaborationClient {
   pending: Operation[] = []
   inflight: Operation = null
   timers: Timers = {}
-  onReceivedCallback: (operation: Operation) => void
-  onAllOperationsAcknowledgedCallback: (version: number) => void
+  store: Store
 
-  constructor({ onOperationReceived, onAllOperationsAcknowledged }) {
+  constructor() {
     this.me = cuid()
+  }
 
-    this.onReceivedCallback = onOperationReceived
-    this.onAllOperationsAcknowledgedCallback = onAllOperationsAcknowledged
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  enhance(): StoreEnhancer<any> {
+    return (createStore: StoreEnhancerStoreCreator) => <S, A extends AnyAction>(
+      reducer: Reducer<S, A>,
+      preloadedState?: PreloadedState<S>
+    ) => {
+      const store = createStore(reducer, preloadedState)
+
+      this.store = {
+        ...store,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        dispatch: (action: any) => {
+          const result = store.dispatch(action)
+
+          if (
+            this.isMappedOperation(action.type as string) &&
+            action.payload &&
+            !action.payload._remote
+          ) {
+            this.log('document action', action)
+            this.submitOperations([this.actionToOperation(action)])
+          }
+
+          return result
+        },
+      }
+
+      return this.store
+    }
+  }
+
+  actionToOperation(action: AnyAction) {
+    return (action as unknown) as Operation
+  }
+
+  onOperationReceived(op: VersionedOperation) {
+    const nextAction: OperationAction = {
+      type: op.type,
+      payload: {
+        ...op.payload,
+        _remote: true,
+      },
+    }
+    this.log('client got external op', op.type, 'dispatch', nextAction)
+    this.store.dispatch(nextAction)
+  }
+
+  onAllOperationsAcknowledged(version: number) {
+    this.log('client all op ack', version)
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -109,17 +176,14 @@ export class CollaborationClient {
     // if both sets start from the same document version.
     this.log('versions', { other: firstVersion, self: this.version })
     if (firstVersion !== this.version) {
-      this.log(
-        'received operations past expected version, requesting older operations'
-      )
-      this.channel.requestOperationsSince(this.version)
+      this.log('received operations past expected version, ignoring :(')
       return
     }
 
     const [newOurs, newTheirs] = transform(this.pending, operations)
     this.pending = newOurs
 
-    newTheirs.forEach((operation) => this.onReceivedCallback(operation))
+    newTheirs.forEach((operation) => this.onOperationReceived(operation))
 
     this.updateVersion(lastVersion + 1)
 
@@ -140,13 +204,15 @@ export class CollaborationClient {
     this.inflight = null
     this.pending.shift()
 
+    // client version is 1 ahead of last version sent, so that on
+    // the next send, version will be correct
     this.updateVersion(operation.version + 1)
 
     if (this.pending.length > 0) {
       this.submitNextOperation()
     } else {
       this.timers.operation = null
-      this.onAllOperationsAcknowledgedCallback(this.version)
+      this.onAllOperationsAcknowledged(this.version)
     }
   }
 

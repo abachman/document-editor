@@ -5,4 +5,4 @@ import * as ActionCable from '@rails/actioncable'
 
 ActionCable.logger.enabled = false
 
-export default ActionCable.createConsumer('ws://localhost:5100')
+export default ActionCable.createConsumer()

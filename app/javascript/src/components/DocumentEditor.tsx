@@ -18,7 +18,7 @@ export const DocumentEditor = (props: RouteComponentProps) => {
 
   return (
     <div className="editor">
-      <h1>Edit</h1>
+      <h1>{window.DOCUMENT.name}</h1>
 
       {document.map((id) => {
         return <EntityEditor key={id} id={id} />
