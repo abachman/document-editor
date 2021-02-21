@@ -4,6 +4,12 @@
 
 To allow simultaneous (collaborative) and offline editing of a JSON object.
 
+### idea: give operational transforma chance <------- where i am today
+
+Starting with the logical guts of: https://github.com/aha-app/collaborative-demo
+
+And converting to typescript + redux + not a collaborative text editor.
+
 ### idea: automerge
 
 [https://github.com/automerge/automerge](https://github.com/automerge/automerge)
@@ -27,12 +33,6 @@ If postgres is central / trusted / canonical, automerge, which was built for a l
 ### idea: simplify change history
 
 only allow document changes that can be summarized as a list of [].length == 2 jsonb selector events and then just apply those to the DB-persisted document as they come in and publish outwards to all connected clients.
-
-### idea: give operational transforma chance
-
-    git clone git@github.com:aha-app/collaborative-demo.git
-
-And convert to typescript + redux + not a collaborative text editor.
 
 ## Running the App
 
