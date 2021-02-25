@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { useTypedSelector } from '../store'
-import { documentActions, EntityKind, insertOp } from '../store/document'
+import { documentActions, EntityKind, updateOp } from '../store/document'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 interface EntityEditorProps {
   id: string
+  index: number
+  hl: boolean
 }
 
 export const EntityEditor = (props: EntityEditorProps) => {
@@ -16,9 +20,28 @@ export const EntityEditor = (props: EntityEditorProps) => {
     setValue(entity.content)
   }, [entity.content])
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: props.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    boxShadow: props.hl ? 'inset 0 2px 0 #f00' : 'inset 0 0 0 transparent',
+  }
+
   return (
-    <div className={`form ${entity.kind}`}>
-      <label htmlFor={`entity-${entity.id}`}>
+    <div
+      className={`form ${entity.kind}`}
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+    >
+      <label htmlFor={`entity-${entity.id}`} {...listeners}>
         {entity.kind === EntityKind.Note ? 'N:' : 'Q:'}
       </label>
       <input
@@ -26,15 +49,14 @@ export const EntityEditor = (props: EntityEditorProps) => {
         id={`entity-${entity.id}`}
         value={value}
         onChange={(evt) => setValue(evt.target.value)}
-        onBlur={() =>
+        onBlur={() => {
           dispatch(
-            insertOp({
-              id: props.id,
-              kind: entity.kind,
+            updateOp({
+              ...entity,
               content: value,
             })
           )
-        }
+        }}
       />
       <button
         type="button"

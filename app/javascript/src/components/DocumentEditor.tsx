@@ -1,18 +1,26 @@
 import { Link, RouteComponentProps } from '@reach/router'
 import { shallowEqual, useDispatch } from 'react-redux'
 import { useTypedSelector } from '../store'
-import { EntityKind, createEntity, insertOp } from '../store/document'
+import {
+  EntityKind,
+  createEntity,
+  insertOp,
+  sortedEntities,
+  reorderOp,
+  documentActions,
+} from '../store/document'
 import { EntityEditor } from './EntityEditor'
+import { DndContext, DragEndEvent } from '@dnd-kit/core'
+import { SortableContext } from '@dnd-kit/sortable'
+import { useState } from 'react'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const DocumentEditor = (props: RouteComponentProps) => {
   const dispatch = useDispatch()
+  const [hl, setHl] = useState<string | null>(null)
+
   const document = useTypedSelector((state) => {
-    const sorted = Object.values(state.document.entities).sort((a, b) => {
-      if (a.id > b.id) return 1
-      else if (a.id === b.id) return 0
-      else return -1
-    })
+    const sorted = sortedEntities(state.document.entities)
     return sorted.map((entity) => entity.id)
   }, shallowEqual)
 
@@ -20,9 +28,25 @@ export const DocumentEditor = (props: RouteComponentProps) => {
     <div className="editor">
       <h1>{window.DOCUMENT.name}</h1>
 
-      {document.map((id) => {
-        return <EntityEditor key={id} id={id} />
-      })}
+      <DndContext
+        onDragEnd={(evt: DragEndEvent) => {
+          console.log(evt)
+          setHl(evt.over.id)
+          dispatch(
+            documentActions.reorder({
+              active: evt.active,
+              over: evt.over,
+              delta: evt.delta.y > 0 ? 0 : -1,
+            })
+          )
+        }}
+      >
+        <SortableContext items={document}>
+          {document.map((id, i) => {
+            return <EntityEditor key={id} id={id} index={i} hl={hl === id} />
+          })}
+        </SortableContext>
+      </DndContext>
 
       <div className="controls">
         <button

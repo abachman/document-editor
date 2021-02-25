@@ -30,10 +30,6 @@ we'd need a lock/mutex on the row, but yes. Automerge would be overkill here, th
 
 If postgres is central / trusted / canonical, automerge, which was built for a local-first world, may not be a good fit.
 
-### idea: simplify change history
-
-only allow document changes that can be summarized as a list of [].length == 2 jsonb selector events and then just apply those to the DB-persisted document as they come in and publish outwards to all connected clients.
-
 ## Running the App
 
 ```console

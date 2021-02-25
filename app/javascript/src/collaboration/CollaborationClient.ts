@@ -98,7 +98,11 @@ export class CollaborationClient {
   }
 
   isMappedOperation(actionType: string) {
-    return ['document/insert', 'document/remove'].indexOf(actionType) > -1
+    return (
+      ['document/insert', 'document/remove', 'document/reorder'].indexOf(
+        actionType
+      ) > -1
+    )
   }
 
   connect(documentId: string, initialVersion: number) {

@@ -53,6 +53,7 @@ function toArray(value: Operation[] | Operation | unknown): Array<any> {
 
 const rem = documentActions.remove.type
 const ins = documentActions.insert.type
+const reo = documentActions.reorder.type
 
 const removeInsert = (ta: string, tb: string) => {
   return (ta === rem && tb === ins) || (ta === ins && tb === rem)
@@ -72,14 +73,16 @@ const transformOperation = (
       return {
         type: left.type,
         payload: {
-          id: left.payload.id,
-          kind: left.payload.kind,
+          ...left.payload,
           content: tiebreak
             ? left.payload.content + right.payload.content
             : right.payload.content + left.payload.content,
         },
       }
     }
+  } else if (left.type === reo && right.type === reo) {
+    // left first
+    return left
   }
 
   return left

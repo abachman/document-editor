@@ -9,6 +9,8 @@
   "dependencies": {
     "@babel/preset-react": "^7.12.13",
     "@babel/preset-typescript": "^7.12.16",
+    "@dnd-kit/core": "^1.0.1",
+    "@dnd-kit/sortable": "^1.0.1",
     "@rails/actioncable": "^6.0.0",
     "@rails/activestorage": "^6.0.0",
     "@rails/ujs": "^6.0.0",
